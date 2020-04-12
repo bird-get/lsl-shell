@@ -77,6 +77,7 @@ class Shell(cmd.Cmd):
         return True
     
     def add_cmd(self, name, help_text):
+        """Make a new command available within the shell."""
         def do_cmd(arg):
             result = self.send_cmd(self.url, arg)
             print(result)
