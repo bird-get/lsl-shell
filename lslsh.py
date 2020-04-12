@@ -1,6 +1,6 @@
 import requests
 import warnings
-from urllib3.connectionpool import InsecureRequestWarning
+from urllib3.connectionpool import InsecureRequestWarning # type: ignore
 from json.decoder import JSONDecodeError
 import sys
 from typing import Dict
