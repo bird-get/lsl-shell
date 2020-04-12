@@ -67,6 +67,10 @@ class Shell(cmd.Cmd):
             print("Error: Invalid response")
             return
 
+        available_commands = self.send_cmd(url, "get_commands")
+        for key, value in available_commands.get("available_commands").items():
+            self.add_cmd(key, value)
+
         print(f"Connected to {uuid}")
         print(
             "_______________________________________________________________________________"
@@ -99,8 +103,8 @@ class Shell(cmd.Cmd):
         """Make a new command available within the shell."""
 
         def do_cmd(arg):
-            result = self.send_cmd(self.url, arg)
-            print(result)
+            result = self.send_cmd(self.url, f"{do_cmd.__name__} {arg}")
+            print(result.get("result"))
 
         do_cmd.__doc__ = help_text
         do_cmd.__name__ = name
