@@ -1,11 +1,12 @@
-import requests
-import warnings
-from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
-from json.decoder import JSONDecodeError
-import sys
-from typing import Dict
-import readline
 import cmd
+import readline
+import sys
+import warnings
+from json.decoder import JSONDecodeError
+from typing import Dict
+
+import requests
+from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
 
 SECRET_KEY: str = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334a9"
 INTRO_TEXT: str = 'lslsh 0.0.1\nType "help" for more information.'
