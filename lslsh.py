@@ -15,6 +15,8 @@ warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 class Shell(cmd.Cmd):
     prompt = "> "
     url = None
+    ruler = " "
+    doc_header = "Available commands (type help <topic>):"
 
     def get_names(self):
         return dir(self)
