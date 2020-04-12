@@ -1,5 +1,6 @@
 # TODO
 - [ ] Add user/password login
+- [ ] Wrap Shell class in argparse
 - [ ] Only allow one session
 - [ ] Add keep-alive
 - [ ] Add non-interactive mode to allow use in other scripts
