@@ -1,4 +1,5 @@
 integer connected = 0;
+key SECRET_KEY = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334a9";
 
 default
 {
@@ -16,20 +17,27 @@ default
         }
         else if(method == "POST")
         {
-            if(body == "init")
+            llOwnerSay("POST: " + body);
+            if(llJsonGetValue(body, ["secret_key"]) == SECRET_KEY)
             {
-                llHTTPResponse(id, 200, "{\"uuid\": \"" + string(llGetKey()) + "\"}");
-                connected = 1;
-            }
-            else if(body == "disconnect")
-            {
-                llHTTPResponse(id, 200, "disconnected");
-                connected = 0;
+                if(llJsonGetValue(body, ["command"]) == "init")
+                {
+                    llHTTPResponse(id, 200, "{\"uuid\": \"" + string(llGetKey()) + "\"}");
+                    connected = 1;
+                }
+                else if(llJsonGetValue(body, ["command"]) == "disconnect")
+                {
+                    llHTTPResponse(id, 200, "disconnected");
+                    connected = 0;
+                }
+                else
+                {
+                    llHTTPResponse(id, 200, "success");
+                }
             }
             else
             {
-                llOwnerSay("POST: " + body);
-                llHTTPResponse(id, 200, "success");
+                llHTTPResponse(id, 401, "{\"error\": \"Invalid secret key\"}");
             }
         }
     }
