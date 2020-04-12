@@ -4,6 +4,15 @@ from urllib3.connectionpool import InsecureRequestWarning
 from json.decoder import JSONDecodeError
 import sys
 from typing import Dict
+import readline
+import cmd
+
+
+class Shell(cmd.Cmd):
+    prompt = "> "
+
+    def get_names(self):
+        return dir(self)
 
 SECRET_KEY: str = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334a9"
 
@@ -57,10 +66,21 @@ def disconnect(url: str):
     else:
         print("Disconnected from remote (without acknowledgement).")
 
+def add_cmd(cls, name, help_text):
+    def do_cmd(arg):
+        result = send_cmd(cls.url, arg)
+        print(result)
+
+    do_cmd.__doc__ = help_text
+    do_cmd.__name__ = name
+
+    setattr(cls, f"do_{name}", do_cmd)
+
 def run(url: str):
-    while True:
-        result = send_cmd(url, input("sl > "))
-        print(result.get("result"))
+    cmd = Shell()
+    cmd.url = url
+    add_cmd(cmd, "exit", "Disconnect from remote.")
+    cmd.cmdloop()
 
 try:
     url = init()
