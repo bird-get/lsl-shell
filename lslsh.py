@@ -24,6 +24,9 @@ class Shell(cmd.Cmd):
             return "exit"
         return line
 
+    def emptyline(self):
+        return None
+
     def send_cmd(self, url: str, cmd: str) -> Dict:
         data = {"secret_key": SECRET_KEY,
                 "command": cmd}
