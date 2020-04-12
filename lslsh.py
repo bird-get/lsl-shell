@@ -39,7 +39,9 @@ def init() -> str:
     return url
 
 def disconnect(url: str):
-    response = requests.post(url, data="disconnect", verify=False)
+    data = {"secret_key": SECRET_KEY,
+            "command": "disconnect"}
+    response = requests.post(url, json=data, verify=False)
     print("")
     if response.content.decode("utf-8") == "disconnected":
         print("Disconnected from remote.")
