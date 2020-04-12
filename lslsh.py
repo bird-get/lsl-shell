@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import cmd
 import readline
 import sys
