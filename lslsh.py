@@ -8,6 +8,7 @@ import readline
 import cmd
 
 SECRET_KEY: str = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334a9"
+INTRO_TEXT: str = "lslsh 0.0.1\nType \"help\" for more information."
 
 warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 
@@ -85,7 +86,7 @@ class Shell(cmd.Cmd):
 def run():
     shell = Shell()
     try:
-        shell.cmdloop()
+        shell.cmdloop(INTRO_TEXT)
     except KeyboardInterrupt:
         shell.do_exit(None)
 
