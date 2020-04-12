@@ -68,13 +68,22 @@ class Shell(cmd.Cmd):
         """Exit the shell."""
         print("")
         if self.url:
+            self.do_disconnect(None)
+
+        return True
+    
+    def do_disconnect(self, arg):
+        """Disconnect from remote."""
+        if self.url:
             result = self.send_cmd(self.url, "disconnect")
             if result.get("result") == "disconnected":
                 print("Disconnected from remote.")
             else:
                 print("Disconnected from remote (without acknowledgement).")
 
-        return True
+            url = None
+        else:
+            print("Error: Not connected to remote.")
     
     def add_cmd(self, name, help_text):
         """Make a new command available within the shell."""
