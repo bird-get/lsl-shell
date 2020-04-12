@@ -84,6 +84,9 @@ class Shell(cmd.Cmd):
 
 def run():
     shell = Shell()
-    shell.cmdloop()
+    try:
+        shell.cmdloop()
+    except KeyboardInterrupt:
+        shell.do_exit(None)
 
 run()
