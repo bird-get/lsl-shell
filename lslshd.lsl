@@ -27,12 +27,12 @@ default
                 }
                 else if(llJsonGetValue(body, ["command"]) == "disconnect")
                 {
-                    llHTTPResponse(id, 200, "disconnected");
+                    llHTTPResponse(id, 200, "{\"result\": \"disconnected\"}");
                     connected = 0;
                 }
                 else
                 {
-                    llHTTPResponse(id, 200, "success");
+                    llHTTPResponse(id, 200, "{\"result\": \"success\"}");
                 }
             }
             else
