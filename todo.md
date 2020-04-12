@@ -3,3 +3,5 @@
 - [ ] Only allow one session
 - [ ] Add keep-alive
 - [ ] Add command history
+- [ ] Add non-interactive mode to allow use in other scripts
+- [ ] Add verbose mode to see all communication
