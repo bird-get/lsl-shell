@@ -10,6 +10,8 @@ from typing import Dict
 import requests
 from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
 
+from lib import connect, disconnect, get_available_commands, send_cmd
+
 SECRET_KEY: str = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334a9"
 INTRO_TEXT: str = 'lslsh 0.0.1\nType "help" for more information.'
 
@@ -33,45 +35,22 @@ class Shell(cmd.Cmd):
     def emptyline(self):
         return None
 
-    def send_cmd(self, url: str, cmd: str) -> Dict:
-        data = {"secret_key": SECRET_KEY, "command": cmd}
-
-        try:
-            response = requests.post(url, json=data, verify=False)
-            response_data = response.json()
-        except (
-            requests.ConnectionError,
-            requests.exceptions.MissingSchema,
-            requests.exceptions.InvalidURL,
-        ):
-            raise requests.exceptions.InvalidURL
-        except JSONDecodeError:
-            raise Exception("Error: Response has malformed json")
-
-        error = response_data.get("error", None)
-        if error:
-            raise Exception(f"Error: {error}")
-
-        return response_data
-
     def do_connect(self, url):
         """Connect to given URL."""
         if self.url:
             self.do_disconnect(None)
 
         try:
-            result = self.send_cmd(url, "init")
-        except requests.exceptions.InvalidURL:
+            uuid = connect(url, SECRET_KEY)
+        except requests.exceptions.InvalidURL as e:
             print("Error: Invalid URL")
             return
-
-        uuid = result.get("uuid", None)
-        if not uuid:
-            print("Error: Invalid response")
+        except InvalidResponseError as e:
+            print(e)
             return
 
-        available_commands = self.send_cmd(url, "get_commands")
-        for key, value in available_commands.get("available_commands").items():
+        available_commands = get_available_commands(url, SECRET_KEY)
+        for key, value in available_commands.items():
             self.add_cmd(key, value)
 
         print(f"Connected to {uuid}")
@@ -92,8 +71,7 @@ class Shell(cmd.Cmd):
     def do_disconnect(self, arg):
         """Disconnect from remote."""
         if self.url:
-            result = self.send_cmd(self.url, "disconnect")
-            if result.get("result") == "disconnected":
+            if disconnect(self.url, SECRET_KEY):
                 print("Disconnected from remote.")
             else:
                 print("Disconnected from remote (without acknowledgement).")
@@ -106,7 +84,7 @@ class Shell(cmd.Cmd):
         """Make a new command available within the shell."""
 
         def do_cmd(arg):
-            result = self.send_cmd(self.url, f"{do_cmd.__name__} {arg}")
+            result = send_cmd(self.url, SECRET_KEY, f"{do_cmd.__name__} {arg}")
             print(result.get("result"))
 
         do_cmd.__doc__ = help_text
