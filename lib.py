@@ -26,7 +26,8 @@ def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
     ):
         raise requests.exceptions.InvalidURL
     except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 423:
+        code = e.response.status_code
+        if code == 401 or code == 423:
             error_msg = e.response.json().get("error")
             raise ErrorReceived(f"Error: {error_msg}")
         else:
