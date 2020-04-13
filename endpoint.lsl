@@ -8,6 +8,15 @@ respond(key id, integer status, string key_, string data)
     llHTTPResponse(id, status, llList2Json(JSON_OBJECT, [key_, data]));
 }
 
+broadcast_command(key id, string command)
+{
+    // Broad the message to other scripts. We expect one script to return
+    // a link_message in response. We pass the request_id to be able
+    // to identify the response.
+    request_id = id;
+    llMessageLinked(LINK_SET, 0, command, request_id);
+}
+
 default
 {
     state_entry()
@@ -65,9 +74,7 @@ default
                 }
                 else
                 {
-                    // Relay the message to other scripts, we handle the response later
-                    request_id = id;
-                    llMessageLinked(LINK_SET, 0, llJsonGetValue(body, ["command"]), id);
+                    broadcast_command(id, llJsonGetValue(body, ["command"]));
                 }
             }
             else
