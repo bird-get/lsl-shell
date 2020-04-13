@@ -3,6 +3,11 @@ key SECRET_KEY = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334
 list commands = [];
 key request_id;
 
+respond(key id, integer status, string key_, string data)
+{
+    llHTTPResponse(id, status, llList2Json(JSON_OBJECT, [key_, data]));
+}
+
 default
 {
     state_entry()
@@ -19,7 +24,7 @@ default
         }
         else if(id == request_id && num == 1)
         {
-            llHTTPResponse(id, 200, llList2Json(JSON_OBJECT, ["result", msg]));
+            respond(id, 200, "result", msg);
             request_id = "";
         }
     }
@@ -45,22 +50,18 @@ default
             {
                 if(llJsonGetValue(body, ["command"]) == "init")
                 {
-                    llHTTPResponse(id, 200, llList2Json(JSON_OBJECT,
-                                                        ["uuid", llGetKey()]));
+                    respond(id, 200, "uuid", llGetKey());
                     connected = 1;
                 }
                 else if(llJsonGetValue(body, ["command"]) == "disconnect")
                 {
-                    llHTTPResponse(id, 200, llList2Json(JSON_OBJECT,
-                                                        ["result", "disconnected"]));
+                    respond(id, 200, "result", "disconnected");
                     connected = 0;
                 }
                 else if(llJsonGetValue(body, ["command"]) == "get_commands")
                 {
-                    llHTTPResponse(id, 200, llList2Json(JSON_OBJECT,
-                                                        ["available_commands",
-                                                         llList2Json(JSON_OBJECT, commands)
-                                                        ]));
+                    respond(id, 200, "available_commands", llList2Json(JSON_OBJECT, \
+                                                                       commands));
                 }
                 else
                 {
@@ -71,8 +72,7 @@ default
             }
             else
             {
-                llHTTPResponse(id, 401, llList2Json(JSON_OBJECT,
-                                                    ["error", "Invalid secret key"]));
+                respond(id, 401, "error", "Invalid secret key");
             }
         }
     }
