@@ -44,7 +44,7 @@ class Shell(cmd.Cmd):
 
     def _send_cmd(self, command: str) -> str:
         if not self.url:
-            return "Error: Not connected to an endpoint."
+            return f"{Fore.RED}Error{Fore.RESET}: Not connected to an endpoint."
 
         try:
             result = send_cmd(self.url, SECRET_KEY, command).get("result")
@@ -102,7 +102,7 @@ class Shell(cmd.Cmd):
             for cmd in self.remote_commands:
                 self.remove_cmd(cmd)
         else:
-            print("Error: Not connected to remote.")
+            print(f"{Fore.RED}Error{Fore.RESET}: Not connected to remote.")
 
     def add_cmd(self, name, help_text):
         """Make a new command available within the shell."""
