@@ -44,7 +44,7 @@ class Shell(cmd.Cmd):
     def emptyline(self):
         return None
 
-    def _send_cmd(self, command: str) -> Dict:
+    def _send_cmd(self, command: str) -> str:
         if not self.url:
             raise Exception("URL not yet available")
 
