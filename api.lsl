@@ -25,6 +25,13 @@ default
         }
     }
 
+    changed(integer change)
+    {
+        if(change & CHANGED_OWNER || change & CHANGED_REGION || \
+           change & CHANGED_REGION_START)
+            llResetScript();
+    }
+
     http_request(key id, string method, string body)
     {
         if(method == URL_REQUEST_GRANTED)
