@@ -8,6 +8,7 @@ from json.decoder import JSONDecodeError
 from typing import Dict, List
 
 import requests
+from colorama import Back, Fore, Style, deinit, init  # type: ignore
 from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
 
 from lib import (
@@ -30,7 +31,7 @@ warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 class Shell(cmd.Cmd):
     prompt = "> "
     url = None
-    ruler = " "
+    ruler = "-"
     doc_header = "Available built-in commands (type help <topic>):"
     undoc_header = "Undocumented built-in commands:"
     doc_remote_header = "Available endpoint commands (type help <topic>):"
@@ -187,14 +188,27 @@ class Shell(cmd.Cmd):
             self.print_topics(self.undoc_header, cmds_undoc, 15, 80)
             self.print_topics(self.undoc_remote_header, cmds_undoc_remote, 15, 80)
 
+    def print_topics(self, header, cmds, cmdlen, maxcol):
+        if cmds:
+            self.stdout.write(Style.BRIGHT + "%s\n" % str(header))
+            if self.ruler:
+                self.stdout.write(
+                    Fore.LIGHTBLACK_EX + "%s\n" % str(self.ruler * len(header))
+                )
+            self.columnize(cmds, maxcol - 1)
+            self.stdout.write("\n")
+
 
 def run():
+    init(autoreset=True)
     shell = Shell()
     try:
         shell.cmdloop(INTRO_TEXT)
     except KeyboardInterrupt:
         shell.do_exit(None)
+        deinit()
     except Exception:
+        deinit()
         # Attempt to disconnect so the session immediately becomes available again
         try:
             shell.do_disconnect()
