@@ -101,7 +101,7 @@ class Shell(cmd.Cmd):
             else:
                 print("Disconnected from remote (without acknowledgement).")
 
-            url = None
+            self.url = None
         else:
             print("Error: Not connected to remote.")
 
