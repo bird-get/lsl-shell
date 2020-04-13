@@ -38,7 +38,9 @@ class Shell(cmd.Cmd):
 
     def precmd(self, line):
         if line == "EOF":
-            return "exit"
+            print()
+            return "disconnect" if self.url else "exit"
+
         return line
 
     def emptyline(self):
@@ -87,7 +89,6 @@ class Shell(cmd.Cmd):
 
     def do_exit(self, arg):
         """Exit the shell."""
-        print("")
         if self.url:
             self.do_disconnect(None)
 
