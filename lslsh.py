@@ -9,6 +9,7 @@ from typing import Dict, List
 
 import requests
 from colorama import Back, Fore, Style, deinit, init  # type: ignore
+from tabulate import tabulate
 from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
 
 from lib import ErrorReceived, connect, disconnect, get_available_commands, send_cmd
@@ -51,6 +52,13 @@ class Shell(cmd.Cmd):
             result = send_cmd(self.url, SECRET_KEY, command).get("result")
         except Exception as e:
             return f"{Fore.RED}Error{Fore.RESET}: {e}"
+
+        # Render as table if list of dicts
+        if isinstance(result, list) and isinstance(result[0], dict):
+            rows = []
+            for item in result:
+                rows.append(list(item.keys()) + list(item.values()))
+            return tabulate(rows, tablefmt="plain")
 
         return result
 
