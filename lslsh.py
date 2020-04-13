@@ -10,7 +10,14 @@ from typing import Dict
 import requests
 from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
 
-from lib import connect, disconnect, get_available_commands, send_cmd
+from lib import (
+    ErrorReceived,
+    InvalidResponseError,
+    connect,
+    disconnect,
+    get_available_commands,
+    send_cmd,
+)
 
 SECRET_KEY: str = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334a9"
 INTRO_TEXT: str = 'lslsh 0.0.1\nType "help" for more information.'
@@ -45,7 +52,7 @@ class Shell(cmd.Cmd):
         except requests.exceptions.InvalidURL as e:
             print("Error: Invalid URL")
             return
-        except InvalidResponseError as e:
+        except (InvalidResponseError, ErrorReceived) as e:
             print(e)
             return
 

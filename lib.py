@@ -8,6 +8,10 @@ class InvalidResponseError(Exception):
     pass
 
 
+class ErrorReceived(Exception):
+    pass
+
+
 def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
     """Send a command to the endpoint and return the response."""
     data = {"secret_key": secret_key, "command": cmd}
@@ -26,7 +30,7 @@ def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
 
     error = response_data.get("error", None)
     if error:
-        raise Exception(f"Error: {error}")
+        raise ErrorReceived(f"Error: {error}")
 
     return response_data
 

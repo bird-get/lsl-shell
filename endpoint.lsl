@@ -57,13 +57,20 @@ default
                 string command = llJsonGetValue(body, ["command"]);
                 if(command == "connect")
                 {
-                    respond(id, 200, "uuid", llGetKey());
-                    connected = 1;
+                    if(connected == FALSE)
+                    {
+                        respond(id, 200, "uuid", llGetKey());
+                        connected = TRUE;
+                    }
+                    else
+                    {
+                        respond(id, 423, "error", "Session is currently in use");
+                    }
                 }
                 else if(command == "disconnect")
                 {
                     respond(id, 200, "result", "disconnected");
-                    connected = 0;
+                    connected = FALSE;
                 }
                 else if(command == "get_commands")
                 {
