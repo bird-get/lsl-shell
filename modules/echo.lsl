@@ -6,7 +6,7 @@ default
         string param0 = llList2String(params, 0);
         string param1 = llList2String(params, 1);
 
-        if(id == "request_command_info")
+        if(id == "get_commands")
         {
             llMessageLinked(LINK_SET, 0, "echo|echo: echo [arg ...]", "command_info");
         }

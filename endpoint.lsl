@@ -20,7 +20,7 @@ default
     state_entry()
     {
         llRequestSecureURL();
-        llMessageLinked(LINK_SET, 0, "", "request_command_info");
+        llMessageLinked(LINK_SET, 0, "", "get_commands");
     }
 
     link_message(integer link, integer num, string msg, key id)
@@ -77,10 +77,7 @@ default
                     respond(id, 200, "available_commands", llList2Json(JSON_OBJECT, \
                                                                        commands));
                 }
-                else
-                {
-                    broadcast_command(id, command);
-                }
+                broadcast_command(id, command);
             }
             else
             {
