@@ -92,16 +92,16 @@ class Shell(cmd.Cmd):
         Disconnect from the endpoint."""
         if self.url:
             if disconnect(self.url, SECRET_KEY):
-                print("Disconnected from remote.")
+                print("Disconnected from endpoint.")
             else:
-                print("Disconnected from remote (without acknowledgement).")
+                print("Disconnected from endpoint (without acknowledgement).")
 
             self.url = None
             self.prompt = self.default_prompt
             for cmd in self.remote_commands:
                 self.remove_cmd(cmd)
         else:
-            print(f"{Fore.RED}Error{Fore.RESET}: Not connected to remote.")
+            print(f"{Fore.RED}Error{Fore.RESET}: Not connected to endpoint")
 
     def add_cmd(self, name, help_text):
         """Make a new command available within the shell."""
