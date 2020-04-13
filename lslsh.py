@@ -141,7 +141,15 @@ class Shell(cmd.Cmd):
                 try:
                     doc = getattr(self, "do_" + arg).__doc__
                     if doc:
-                        self.stdout.write("%s\n" % str(doc))
+                        stripped_lines = []
+                        for line in doc.splitlines():
+                            stripped_lines.append(line.strip())
+
+                        if stripped_lines[-1] != "":
+                            stripped_lines.append("")
+
+                        stripped = "\n".join(stripped_lines)
+                        self.stdout.write(f"{stripped}\n")
                         return
                 except AttributeError:
                     pass
