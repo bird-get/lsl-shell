@@ -13,6 +13,8 @@ from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
 from lib import (
     ErrorReceived,
     InvalidResponseError,
+    SessionLockedError,
+    UnauthorizedError,
     connect,
     disconnect,
     get_available_commands,
@@ -52,7 +54,12 @@ class Shell(cmd.Cmd):
         except requests.exceptions.InvalidURL as e:
             print("Error: Invalid URL")
             return
-        except (InvalidResponseError, ErrorReceived) as e:
+        except (
+            InvalidResponseError,
+            ErrorReceived,
+            UnauthorizedError,
+            SessionLockedError,
+        ) as e:
             print(e)
             return
 

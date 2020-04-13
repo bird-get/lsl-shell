@@ -12,6 +12,14 @@ class ErrorReceived(Exception):
     pass
 
 
+class SessionLockedError(Exception):
+    pass
+
+
+class UnauthorizedError(Exception):
+    pass
+
+
 def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
     """Send a command to the endpoint and return the response."""
     data = {"secret_key": secret_key, "command": cmd}
@@ -27,9 +35,10 @@ def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
         raise requests.exceptions.InvalidURL
     except requests.exceptions.HTTPError as e:
         code = e.response.status_code
-        if code == 401 or code == 423:
-            error_msg = e.response.json().get("error")
-            raise ErrorReceived(f"Error: {error_msg}")
+        if code == 423:
+            raise SessionLockedError("Error: " + e.response.json().get("error"))
+        elif code == 401:
+            raise UnauthorizedError("Error: " + e.response.json().get("error"))
         else:
             raise e
 
