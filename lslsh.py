@@ -107,6 +107,8 @@ class Shell(cmd.Cmd):
                 print("Disconnected from remote (without acknowledgement).")
 
             self.url = None
+            for cmd in self.remote_commands:
+                self.remove_cmd(cmd)
         else:
             print("Error: Not connected to remote.")
 
@@ -121,6 +123,13 @@ class Shell(cmd.Cmd):
 
         setattr(self, f"do_{name}", do_cmd)
         self.remote_commands.append(name)
+
+    def remove_cmd(self, name):
+        """Remove a command from the shell."""
+
+        if not hasattr(Shell, f"do_{name}") and hasattr(self, f"do_{name}"):
+            delattr(self, f"do_{name}")
+            filter(lambda a: a != name, self.remote_commands)
 
     def do_help(self, arg):
         """List available commands with "help" or detailed help with "help cmd"."""
