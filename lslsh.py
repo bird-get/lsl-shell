@@ -71,11 +71,7 @@ class Shell(cmd.Cmd):
         for key, value in available_commands.items():
             self.add_cmd(key, value)
 
-        print(f"Connected to {uuid}")
-        print(
-            "_______________________________________________________________________________"
-        )
-        print("")
+        print(f"{Fore.GREEN}Connected to {uuid}{Fore.RESET}\n")
         self.url = url
 
     def do_exit(self, arg):
