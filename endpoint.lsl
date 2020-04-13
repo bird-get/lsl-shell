@@ -1,19 +1,17 @@
 integer connected = 0;
 key SECRET_KEY = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334a9";
 list commands = [];
-key request_id;
 
 respond(key id, integer status, string key_, string data)
 {
     llHTTPResponse(id, status, llList2Json(JSON_OBJECT, [key_, data]));
 }
 
-broadcast_command(key id, string command)
+broadcast_command(key request_id, string command)
 {
     // Broad the message to other scripts. We expect one script to return
     // a link_message in response. We pass the request_id to be able
     // to identify the response.
-    request_id = id;
     llMessageLinked(LINK_SET, 0, command, request_id);
 }
 
@@ -31,10 +29,9 @@ default
         {
             commands += llParseString2List(msg, ["|"], []);
         }
-        else if(id == request_id && num == 1)
+        else if(num == 1)
         {
             respond(id, 200, "result", msg);
-            request_id = "";
         }
     }
 
