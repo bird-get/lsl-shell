@@ -39,6 +39,8 @@ def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
             raise SessionLockedError("Error: " + e.response.json().get("error"))
         elif code == 401:
             raise UnauthorizedError("Error: " + e.response.json().get("error"))
+        elif code == 504:
+            raise TimeoutError("Error: " + e.response.content.decode("UTF-8"))
         else:
             raise e
 

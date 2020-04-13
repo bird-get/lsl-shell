@@ -44,6 +44,17 @@ class Shell(cmd.Cmd):
     def emptyline(self):
         return None
 
+    def _send_cmd(self, command: str) -> Dict:
+        if not self.url:
+            raise Exception("URL not yet available")
+
+        try:
+            result = send_cmd(self.url, SECRET_KEY, command).get("result")
+        except TimeoutError as e:
+            return str(e)
+
+        return result
+
     def do_connect(self, url):
         """Connect to given URL."""
         if self.url:
@@ -98,8 +109,7 @@ class Shell(cmd.Cmd):
         """Make a new command available within the shell."""
 
         def do_cmd(arg):
-            result = send_cmd(self.url, SECRET_KEY, f"{do_cmd.__name__} {arg}")
-            print(result.get("result"))
+            print(self._send_cmd(f"{do_cmd.__name__} {arg}"))
 
         do_cmd.__doc__ = help_text
         do_cmd.__name__ = name
