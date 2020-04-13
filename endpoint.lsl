@@ -9,7 +9,7 @@ respond(key id, integer status, string key_, string data)
 
 broadcast_command(key request_id, string command)
 {
-    // Broad the message to other scripts. We expect one script to return
+    // Broadcast the message to other scripts. We expect one script to return
     // a link_message in response. We pass the request_id to be able
     // to identify the response.
     llMessageLinked(LINK_SET, 0, command, request_id);
