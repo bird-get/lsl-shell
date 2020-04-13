@@ -54,24 +54,25 @@ default
             llOwnerSay("POST: " + body);
             if(llJsonGetValue(body, ["secret_key"]) == SECRET_KEY)
             {
-                if(llJsonGetValue(body, ["command"]) == "init")
+                string command = llJsonGetValue(body, ["command"]);
+                if(command == "init")
                 {
                     respond(id, 200, "uuid", llGetKey());
                     connected = 1;
                 }
-                else if(llJsonGetValue(body, ["command"]) == "disconnect")
+                else if(command == "disconnect")
                 {
                     respond(id, 200, "result", "disconnected");
                     connected = 0;
                 }
-                else if(llJsonGetValue(body, ["command"]) == "get_commands")
+                else if(command == "get_commands")
                 {
                     respond(id, 200, "available_commands", llList2Json(JSON_OBJECT, \
                                                                        commands));
                 }
                 else
                 {
-                    broadcast_command(id, llJsonGetValue(body, ["command"]));
+                    broadcast_command(id, command);
                 }
             }
             else
