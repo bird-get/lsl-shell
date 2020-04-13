@@ -19,8 +19,7 @@ default
         }
         else if(id == request_id && num == 1)
         {
-            // TODO Properly escape and serialize to JSON
-            llHTTPResponse(id, 200, "{\"result\": \"" + msg + "\"}");
+            llHTTPResponse(id, 200, llList2Json(JSON_OBJECT, ["result", msg]));
             request_id = "";
         }
     }
@@ -46,18 +45,22 @@ default
             {
                 if(llJsonGetValue(body, ["command"]) == "init")
                 {
-                    llHTTPResponse(id, 200, "{\"uuid\": \"" + string(llGetKey()) + "\"}");
+                    llHTTPResponse(id, 200, llList2Json(JSON_OBJECT,
+                                                        ["uuid", llGetKey()]));
                     connected = 1;
                 }
                 else if(llJsonGetValue(body, ["command"]) == "disconnect")
                 {
-                    llHTTPResponse(id, 200, "{\"result\": \"disconnected\"}");
+                    llHTTPResponse(id, 200, llList2Json(JSON_OBJECT,
+                                                        ["result", "disconnected"]));
                     connected = 0;
                 }
                 else if(llJsonGetValue(body, ["command"]) == "get_commands")
                 {
-                    llHTTPResponse(id, 200, "{\"available_commands\": " + \
-                                   llList2Json(JSON_OBJECT, commands) + "}");
+                    llHTTPResponse(id, 200, llList2Json(JSON_OBJECT,
+                                                        ["available_commands",
+                                                         llList2Json(JSON_OBJECT, commands)
+                                                        ]));
                 }
                 else
                 {
@@ -68,7 +71,8 @@ default
             }
             else
             {
-                llHTTPResponse(id, 401, "{\"error\": \"Invalid secret key\"}");
+                llHTTPResponse(id, 401, llList2Json(JSON_OBJECT,
+                                                    ["error", "Invalid secret key"]));
             }
         }
     }
