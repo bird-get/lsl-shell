@@ -55,7 +55,7 @@ default
             if(llJsonGetValue(body, ["secret_key"]) == SECRET_KEY)
             {
                 string command = llJsonGetValue(body, ["command"]);
-                if(command == "init")
+                if(command == "connect")
                 {
                     respond(id, 200, "uuid", llGetKey());
                     connected = 1;

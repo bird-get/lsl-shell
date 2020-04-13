@@ -35,7 +35,7 @@ def connect(url: str, secret_key: str) -> str:
     """Connect to the given URL.
 
     Returns the UUID of the endpoint."""
-    uuid = send_cmd(url, secret_key, "init").get("uuid", None)
+    uuid = send_cmd(url, secret_key, "connect").get("uuid", None)
     if not uuid:
         raise InvalidResponseError("Error: Remote did not return its UUID")
 
