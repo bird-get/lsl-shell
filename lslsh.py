@@ -63,7 +63,10 @@ class Shell(cmd.Cmd):
         return result
 
     def do_connect(self, url):
-        """Connect to given URL."""
+        """usage: connect [URL]
+
+        Connect to the given endpoint URL.
+        """
         if self.url:
             self.do_disconnect(None)
 
@@ -93,14 +96,19 @@ class Shell(cmd.Cmd):
         self.url = url
 
     def do_exit(self, arg):
-        """Exit the shell."""
+        """usage: exit
+
+        Exit the shell.
+        """
         if self.url:
             self.do_disconnect(None)
 
         return True
 
     def do_disconnect(self, arg):
-        """Disconnect from remote."""
+        """usage: disconnect
+
+        Disconnect from the endpoint."""
         if self.url:
             if disconnect(self.url, SECRET_KEY):
                 print("Disconnected from remote.")
