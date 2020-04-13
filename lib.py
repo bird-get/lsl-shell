@@ -20,6 +20,14 @@ class UnauthorizedError(Exception):
     pass
 
 
+class NotFoundError(Exception):
+    pass
+
+
+class InternalServerError(Exception):
+    pass
+
+
 def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
     """Send a command to the endpoint and return the response."""
     data = {"secret_key": secret_key, "command": cmd}
@@ -41,6 +49,10 @@ def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
             raise UnauthorizedError("Error: " + e.response.json().get("error"))
         elif code == 504:
             raise TimeoutError("Error: " + e.response.content.decode("UTF-8"))
+        elif code == 404:
+            raise NotFoundError("Error: Endpoint URL not found")
+        elif code == 500:
+            raise InternalServerError("Error: Internal SL server error")
         else:
             raise e
 

@@ -13,7 +13,9 @@ from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
 
 from lib import (
     ErrorReceived,
+    InternalServerError,
     InvalidResponseError,
+    NotFoundError,
     SessionLockedError,
     UnauthorizedError,
     connect,
@@ -80,6 +82,8 @@ class Shell(cmd.Cmd):
             ErrorReceived,
             UnauthorizedError,
             SessionLockedError,
+            NotFoundError,
+            InternalServerError,
         ) as e:
             print(e)
             return
