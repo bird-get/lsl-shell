@@ -56,6 +56,9 @@ class Shell(cmd.Cmd):
 
     def do_connect(self, url):
         """Connect to given URL."""
+        if self.url:
+            self.do_disconnect(None)
+
         try:
             result = self.send_cmd(url, "init")
         except requests.exceptions.InvalidURL:
