@@ -54,7 +54,7 @@ def connect(url: str, secret_key: str) -> str:
     Returns the UUID of the endpoint."""
     uuid = send_cmd(url, secret_key, "connect").get("uuid", None)
     if not uuid:
-        raise InvalidResponseError("Error: Endpoint did not return its UUID")
+        raise InvalidResponseError("Endpoint did not return its UUID")
 
     return uuid
 
@@ -77,6 +77,6 @@ def get_available_commands(url: str, secret_key: str) -> Dict:
     """Get a list of available commands from the endpoint."""
     cmds = send_cmd(url, secret_key, "get_commands").get("available_commands", None)
     if not cmds:
-        raise InvalidResponseError("Error: Endpoint did not return command list")
+        raise InvalidResponseError("Endpoint did not return command list")
 
     return cmds
