@@ -19,21 +19,23 @@ def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
     try:
         response = requests.post(url, json=data, verify=False)
         response.raise_for_status()
-        response_data = response.json()
     except (
         requests.ConnectionError,
         requests.exceptions.MissingSchema,
         requests.exceptions.InvalidURL,
     ):
         raise requests.exceptions.InvalidURL
-    except JSONDecodeError:
-        raise Exception("Error: Response has malformed json")
     except requests.exceptions.HTTPError as e:
         if e.response.status_code == 423:
             error_msg = e.response.json().get("error")
             raise ErrorReceived(f"Error: {error_msg}")
         else:
             raise e
+
+    try:
+        response_data = response.json()
+    except JSONDecodeError:
+        raise Exception("Error: Response has malformed json")
 
     error = response_data.get("error", None)
     if error:
