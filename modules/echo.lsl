@@ -1,3 +1,8 @@
+string COMMAND = "echo";
+string USAGE = "usage: echo [arg ...]
+
+                Repeat the given arguments.";
+
 default
 {
     link_message(integer sender, integer num, string msg, key id)
@@ -8,7 +13,7 @@ default
 
         if(id == "get_commands")
         {
-            llMessageLinked(LINK_SET, 0, "echo|echo: echo [arg ...]", "command_info");
+            llMessageLinked(LINK_SET, 0, COMMAND + "|" + USAGE, "command_info");
         }
         else if(param0 == "echo")
         {
