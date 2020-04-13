@@ -123,6 +123,14 @@ def run():
         shell.cmdloop(INTRO_TEXT)
     except KeyboardInterrupt:
         shell.do_exit(None)
+    except Exception:
+        # Attempt to disconnect so the session immediately becomes available again
+        try:
+            shell.do_disconnect()
+        except Exception:
+            pass
+
+        raise
 
 
 run()
