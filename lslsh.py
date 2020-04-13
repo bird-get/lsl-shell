@@ -21,6 +21,7 @@ warnings.filterwarnings("ignore", category=InsecureRequestWarning)
 
 class Shell(cmd.Cmd):
     prompt = "> "
+    default_prompt = "> "
     url = None
     ruler = "-"
     doc_header = "Available built-in commands (type help <topic>):"
@@ -72,6 +73,7 @@ class Shell(cmd.Cmd):
             self.add_cmd(key, value)
 
         print(f"{Fore.GREEN}Connected to {uuid}{Fore.RESET}\n")
+        self.prompt = f"{Fore.BLUE}sl{Fore.RESET} > "
         self.url = url
 
     def do_exit(self, arg):
@@ -95,6 +97,7 @@ class Shell(cmd.Cmd):
                 print("Disconnected from remote (without acknowledgement).")
 
             self.url = None
+            self.prompt = self.default_prompt
             for cmd in self.remote_commands:
                 self.remove_cmd(cmd)
         else:
