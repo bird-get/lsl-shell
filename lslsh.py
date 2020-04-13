@@ -46,7 +46,7 @@ class Shell(cmd.Cmd):
 
     def _send_cmd(self, command: str) -> str:
         if not self.url:
-            raise Exception("URL not yet available")
+            return "Error: Not connected to an endpoint."
 
         try:
             result = send_cmd(self.url, SECRET_KEY, command).get("result")
