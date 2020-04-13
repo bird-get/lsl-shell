@@ -5,7 +5,7 @@ import readline
 import sys
 import warnings
 from json.decoder import JSONDecodeError
-from typing import Dict
+from typing import Dict, List
 
 import requests
 from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
@@ -31,7 +31,11 @@ class Shell(cmd.Cmd):
     prompt = "> "
     url = None
     ruler = " "
-    doc_header = "Available commands (type help <topic>):"
+    doc_header = "Available built-in commands (type help <topic>):"
+    undoc_header = "Undocumented built-in commands:"
+    doc_remote_header = "Available endpoint commands (type help <topic>):"
+    undoc_remote_header = "Undocumented endpoint commands:"
+    remote_commands: List[str] = []
 
     def get_names(self):
         return dir(self)
@@ -116,6 +120,63 @@ class Shell(cmd.Cmd):
         do_cmd.__name__ = name
 
         setattr(self, f"do_{name}", do_cmd)
+        self.remote_commands.append(name)
+
+    def do_help(self, arg):
+        """List available commands with "help" or detailed help with "help cmd"."""
+        if arg:
+            try:
+                func = getattr(self, "help_" + arg)
+            except AttributeError:
+                try:
+                    doc = getattr(self, "do_" + arg).__doc__
+                    if doc:
+                        self.stdout.write("%s\n" % str(doc))
+                        return
+                except AttributeError:
+                    pass
+                self.stdout.write("%s\n" % str(self.nohelp % (arg,)))
+                return
+            func()
+        else:
+            names = self.get_names()
+            cmds_doc = []
+            cmds_undoc = []
+            cmds_doc_remote = []
+            cmds_undoc_remote = []
+            help = {}
+            for name in names:
+                if name[:5] == "help_":
+                    help[name[5:]] = 1
+
+            names.sort()
+            # There can be duplicates if routines overridden
+            prevname = ""
+            for name in names:
+                if name[:3] == "do_":
+                    if name == prevname:
+                        continue
+                    prevname = name
+                    cmd = name[3:]
+                    if cmd in self.remote_commands:
+                        if cmd in help:
+                            cmds_undoc_remote.append(cmd)
+                        else:
+                            cmds_doc_remote.append(cmd)
+                    elif cmd in help:
+                        cmds_doc.append(cmd)
+                        del help[cmd]
+                    elif getattr(self, name).__doc__:
+                        cmds_doc.append(cmd)
+                    else:
+                        cmds_undoc.append(cmd)
+
+            self.stdout.write("%s\n" % str(self.doc_leader))
+            self.print_topics(self.doc_header, cmds_doc, 15, 80)
+            self.print_topics(self.doc_remote_header, cmds_doc_remote, 15, 80)
+            self.print_topics(self.misc_header, list(help.keys()), 15, 80)
+            self.print_topics(self.undoc_header, cmds_undoc, 15, 80)
+            self.print_topics(self.undoc_remote_header, cmds_undoc_remote, 15, 80)
 
 
 def run():
