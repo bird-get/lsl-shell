@@ -11,18 +11,7 @@ import requests
 from colorama import Back, Fore, Style, deinit, init  # type: ignore
 from urllib3.connectionpool import InsecureRequestWarning  # type: ignore
 
-from lib import (
-    ErrorReceived,
-    InternalServerError,
-    InvalidResponseError,
-    NotFoundError,
-    SessionLockedError,
-    UnauthorizedError,
-    connect,
-    disconnect,
-    get_available_commands,
-    send_cmd,
-)
+from lib import ErrorReceived, connect, disconnect, get_available_commands, send_cmd
 
 SECRET_KEY: str = "29731e5170353a8b235098c43cd2099a4e805c55fb4395890e81f437c17334a9"
 INTRO_TEXT: str = 'lslsh 0.0.1\nType "help" for more information.'
@@ -59,8 +48,8 @@ class Shell(cmd.Cmd):
 
         try:
             result = send_cmd(self.url, SECRET_KEY, command).get("result")
-        except TimeoutError as e:
-            return str(e)
+        except Exception as e:
+            return f"{Fore.RED}Error{Fore.RESET}: {e}"
 
         return result
 
@@ -74,18 +63,8 @@ class Shell(cmd.Cmd):
 
         try:
             uuid = connect(url, SECRET_KEY)
-        except requests.exceptions.InvalidURL as e:
-            print("Error: Invalid URL")
-            return
-        except (
-            InvalidResponseError,
-            ErrorReceived,
-            UnauthorizedError,
-            SessionLockedError,
-            NotFoundError,
-            InternalServerError,
-        ) as e:
-            print(e)
+        except Exception as e:
+            print(f"{Fore.RED}Connection failed{Fore.RESET}: {e}")
             return
 
         available_commands = get_available_commands(url, SECRET_KEY)

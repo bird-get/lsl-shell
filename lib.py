@@ -12,58 +12,38 @@ class ErrorReceived(Exception):
     pass
 
 
-class SessionLockedError(Exception):
-    pass
-
-
-class UnauthorizedError(Exception):
-    pass
-
-
-class NotFoundError(Exception):
-    pass
-
-
-class InternalServerError(Exception):
-    pass
-
-
 def send_cmd(url: str, secret_key: str, cmd: str) -> Dict:
     """Send a command to the endpoint and return the response."""
     data = {"secret_key": secret_key, "command": cmd}
 
     try:
-        response = requests.post(url, json=data, verify=False)
+        response = requests.post(url, json=data, verify=False, timeout=5)
         response.raise_for_status()
-    except (
-        requests.ConnectionError,
-        requests.exceptions.MissingSchema,
-        requests.exceptions.InvalidURL,
-    ):
-        raise requests.exceptions.InvalidURL
     except requests.exceptions.HTTPError as e:
         code = e.response.status_code
-        if code == 423:
-            raise SessionLockedError("Error: " + e.response.json().get("error"))
-        elif code == 401:
-            raise UnauthorizedError("Error: " + e.response.json().get("error"))
+        if code == 423 or code == 401:
+            error_message = e.response.json().get("error")
         elif code == 504:
-            raise TimeoutError("Error: " + e.response.content.decode("UTF-8"))
+            error_message = e.response.content.decode("UTF-8")
         elif code == 404:
-            raise NotFoundError("Error: Endpoint URL not found")
+            error_message = "Endpoint URL not found"
         elif code == 500:
-            raise InternalServerError("Error: Internal SL server error")
+            error_message = "Internal SL server error"
         else:
             raise e
 
+        e.args = (error_message,)
+        raise e
+
     try:
         response_data = response.json()
-    except JSONDecodeError:
-        raise Exception("Error: Response has malformed json")
+    except JSONDecodeError as e:
+        e.args = ("Response contains invalid json",)
+        raise e
 
     error = response_data.get("error", None)
     if error:
-        raise ErrorReceived(f"Error: {error}")
+        raise ErrorReceived(error)
 
     return response_data
 
