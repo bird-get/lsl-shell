@@ -44,7 +44,7 @@ class Shell(cmd.Cmd):
     def emptyline(self):
         return None
 
-    def pretty_print(self, data: Union[str, Dict, List]) -> str:
+    def pretty_print(self, data: Union[str, Dict, List]) -> Union[str, Dict, List]:
         """Attempt to pretty-print the input data."""
         try:
             if isinstance(data, list) and isinstance(data[0], dict):
