@@ -5,7 +5,7 @@ import readline
 import sys
 import warnings
 from json.decoder import JSONDecodeError
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import requests
 from colorama import Back, Fore, Style, deinit, init  # type: ignore
@@ -44,6 +44,28 @@ class Shell(cmd.Cmd):
     def emptyline(self):
         return None
 
+    def pretty_print(self, data: Any[str, Dict, List]) -> str:
+        """Attempt to pretty-print the input data."""
+        try:
+            if isinstance(data, list) and isinstance(data[0], dict):
+                # List of dicts; no header
+                rows = []
+                for item in data:
+                    rows.append(list(item.keys()) + list(item.values()))
+                return tabulate(rows, tablefmt="plain")
+            elif isinstance(data, list) and isinstance(data[0], list):
+                # List of lists; use first row as header
+
+                # Style the header items
+                for i, item in enumerate(data[0]):
+                    data[0][i] = f"\033[4m{Style.BRIGHT}{item}{Style.NORMAL}\033[0m"
+
+                return tabulate(data, headers="firstrow", tablefmt="plain")
+        except TypeError:
+            pass
+
+        return data
+
     def _send_cmd(self, command: str) -> str:
         if not self.url:
             return f"{Fore.RED}Error{Fore.RESET}: Not connected to an endpoint."
@@ -53,14 +75,7 @@ class Shell(cmd.Cmd):
         except Exception as e:
             return f"{Fore.RED}Error{Fore.RESET}: {e}"
 
-        # Render as table if list of dicts
-        if isinstance(result, list) and isinstance(result[0], dict):
-            rows = []
-            for item in result:
-                rows.append(list(item.keys()) + list(item.values()))
-            return tabulate(rows, tablefmt="plain")
-
-        return result
+        return self.pretty_print(result)
 
     def do_connect(self, url):
         """usage: connect [URL]
