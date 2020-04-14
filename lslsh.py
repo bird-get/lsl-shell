@@ -5,7 +5,7 @@ import readline
 import sys
 import warnings
 from json.decoder import JSONDecodeError
-from typing import Any, Dict, List
+from typing import Dict, List, Union
 
 import requests
 from colorama import Back, Fore, Style, deinit, init  # type: ignore
@@ -44,7 +44,7 @@ class Shell(cmd.Cmd):
     def emptyline(self):
         return None
 
-    def pretty_print(self, data: Any[str, Dict, List]) -> str:
+    def pretty_print(self, data: Union[str, Dict, List]) -> str:
         """Attempt to pretty-print the input data."""
         try:
             if isinstance(data, list) and isinstance(data[0], dict):
