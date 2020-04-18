@@ -5,6 +5,10 @@
 - [ ] Add non-interactive mode to allow use in other scripts
 - [ ] Add verbose mode to see all communication
 - [ ] Add command to refresh command list of endpoint
+- [ ] Formalize link message responses
+    - [ ] Use bash-like exit codes (0, 1, 2, 127, etc.) as response
+    - [ ] Formalize returned JSON
+    - [ ] Update readme
 - [x] Only allow one session in use at a time
 - [x] Add command history
 - [x] Make lsl API script discover modules
