@@ -77,7 +77,7 @@ default
         {
             llMessageLinked(LINK_SET, 0, COMMAND + "|" + USAGE, "command_info");
         }
-        else if(param0 == "avinfo")
+        else if(param0 == COMMAND)
         {
             string response = avinfo(llDeleteSubList(params, 0, 0));
             llMessageLinked(LINK_SET, 1, response, id);

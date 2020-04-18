@@ -14,7 +14,7 @@ default
         {
             llMessageLinked(LINK_SET, 0, COMMAND + "|" + USAGE, "command_info");
         }
-        else if(param0 == "siminfo")
+        else if(param0 == COMMAND)
         {
             list rows = [
                 llList2Json(JSON_OBJECT, ["agent_limit",  llGetEnv("agent_limit")]),
