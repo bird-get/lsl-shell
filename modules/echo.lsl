@@ -1,7 +1,9 @@
 string COMMAND = "echo";
-string USAGE = "usage: echo [arg ...]
+string USAGE = \
+"usage: echo [arg ...]
 
-                Repeat the given arguments.";
+Repeat the given arguments.
+";
 
 default
 {

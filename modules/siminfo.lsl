@@ -1,7 +1,9 @@
 string COMMAND = "siminfo";
-string USAGE = "usage: siminfo
+string USAGE = \
+"usage: siminfo
 
-                Request simulator details.";
+Request simulator details.
+";
 
 default
 {
