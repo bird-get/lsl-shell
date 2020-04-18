@@ -64,8 +64,25 @@ string list_modules()
 
 string list_installed_modules()
 {
-    integer count = llGetInventoryNumber(INVENTORY_SCRIPT);
     list rows = [llList2Json(JSON_ARRAY, ["Name", "Version"])];
+    list modules = get_installed_modules();
+    integer count = llGetListLength(modules);
+    while(count--)
+    {
+        // TODO Get version number
+        string name = llList2String(modules, count);
+        name = llGetSubString(name, 0, -5);
+        rows += [llList2Json(JSON_ARRAY, [name, "unknown"])];
+    }
+    return llList2Json(JSON_ARRAY, rows);
+}
+
+list get_installed_modules()
+{
+    /* Return a list of installed modules. */
+
+    list modules;
+    integer count = llGetInventoryNumber(INVENTORY_SCRIPT);
     while(count--)
     {
         string name = llGetInventoryName(INVENTORY_SCRIPT, count);
@@ -74,15 +91,12 @@ string list_installed_modules()
             string extension = llGetSubString(name, -4, -1);
             if(extension == ".lsl")
             {
-                // TODO Get version number
-                name = llGetSubString(name, 0, -5);
-                rows += [llList2Json(JSON_ARRAY, [name, "unknown"])];
+                modules += [name];
             }
         }
     }
-    return llList2Json(JSON_ARRAY, rows);
+    return modules;
 }
-
 
 default
 {
