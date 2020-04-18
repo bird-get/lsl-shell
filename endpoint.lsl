@@ -31,7 +31,12 @@ default
         }
         else if(num == 1)
         {
-            respond(id, 200, "result", msg);
+            string error = llJsonGetValue(msg, ["error"]);
+            if(error == JSON_NULL || error == JSON_INVALID)
+            {
+                respond(id, 200, "result", msg);
+            }
+            else respond(id, 200, "error", error);
         }
     }
 
