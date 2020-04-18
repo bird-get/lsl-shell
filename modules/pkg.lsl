@@ -1,3 +1,4 @@
+string ENDPOINT_SCRIPT_NAME = "endpoint.lsl";
 string COMMAND = "pkg";
 string USAGE = \
 "usage: pkg [-h] command [args...]
@@ -68,7 +69,7 @@ string list_installed_modules()
     while(count--)
     {
         string name = llGetInventoryName(INVENTORY_SCRIPT, count);
-        if(name != llGetScriptName())
+        if(name != llGetScriptName() && name != ENDPOINT_SCRIPT_NAME)
         {
             string extension = llGetSubString(name, -4, -1);
             if(extension == ".lsl")
