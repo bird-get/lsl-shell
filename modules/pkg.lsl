@@ -8,6 +8,8 @@ Install or uninstall modules from a nearby repository.
 arguments:
   install MODULE        install MODULE
   uninstall MODULE      uninstall MODULE
+  enable MODULE         enable MODULE
+  disable MODULE        disable MODULE
   list                  list installable modules
   current               list currently installed modules
 
@@ -35,6 +37,14 @@ string pkg(list params)
     {
         return uninstall_module(module);
     }
+    else if(cmd == "enable")
+    {
+        return enable_module(module);
+    }
+    else if(cmd == "disable")
+    {
+        return disable_module(module);
+    }
     else if(cmd == "list")
     {
         return list_modules();
@@ -55,6 +65,53 @@ string install_module(string module)
 string uninstall_module(string module)
 {
     return "TODO";
+}
+
+string enable_module(string module)
+{
+    string name = module;
+
+    if(module == "") return llList2Json(JSON_OBJECT, ["error", "Missing argument."]);
+
+    // Append extension if it's missing
+    if(llGetSubString(module, -4, -1) != ".lsl") module = module + ".lsl";
+    else name = llGetSubString(module, 0, -5);
+
+    // Return error if module does not exist
+    integer exists = llListFindList(get_installed_modules(), [module]);
+    if(exists == -1) return llList2Json(JSON_OBJECT, ["error", "Module is not installed."]);
+
+    if(llGetScriptState(module) == FALSE)
+    {
+        llSetScriptState(module, TRUE);
+        return "Module '" + name + "' enabled.";
+    }
+
+    return llList2Json(JSON_OBJECT, ["error", "Module '" + name + "' is already enabled."]);
+}
+
+string disable_module(string module)
+{
+    // TODO Refactor; lots of code duplication
+    string name = module;
+
+    if(module == "") return llList2Json(JSON_OBJECT, ["error", "Missing argument."]);
+
+    // Append extension if it's missing
+    if(llGetSubString(module, -4, -1) != ".lsl") module = module + ".lsl";
+    else name = llGetSubString(module, 0, -5);
+
+    // Return error if module does not exist
+    integer exists = llListFindList(get_installed_modules(), [module]);
+    if(exists == -1) return llList2Json(JSON_OBJECT, ["error", "Module is not installed."]);
+
+    if(llGetScriptState(module) == TRUE)
+    {
+        llSetScriptState(module, FALSE);
+        return "Module '" + name + "' disabled.";
+    }
+
+    return llList2Json(JSON_OBJECT, ["error", "Module '" + name + "' is already disabled."]);
 }
 
 string list_modules()
