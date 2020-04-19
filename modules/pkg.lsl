@@ -207,6 +207,20 @@ string handle_inventory_change()
     return response;
 }
 
+respond(integer code, string data, string error_msg)
+{
+    /* Send a response to the endpoint.
+
+       If error_msg is not empty, it will be sent instead of data.
+    */
+    // TODO Determine response type based on code instead of error_msg
+    key id = command_request_id;
+    if(code == -1) id = "command_info";
+    else if(error_msg != "") data = llList2Json(JSON_OBJECT, ["error", error_msg]);
+
+    llMessageLinked(LINK_SET, code, data, command_request_id);
+}
+
 default
 {
     link_message(integer sender, integer num, string msg, key id)
@@ -216,13 +230,13 @@ default
 
         if(id == "get_commands")
         {
-            llMessageLinked(LINK_SET, 0, COMMAND + "|" + USAGE, "command_info");
+            respond(-1, COMMAND + "|" + USAGE, "");
         }
         else if(param0 == COMMAND)
         {
             command_request_id = id;
             string result = pkg(llDeleteSubList(params, 0, 0));
-            if(result != "AWAIT") llMessageLinked(LINK_SET, 1, result, id);
+            if(result != "AWAIT") respond(1, result, "");
         }
     }
 
@@ -232,8 +246,7 @@ default
         string error = llJsonGetValue(data, ["error"]);
         if(error != JSON_INVALID)
         {
-            string result = llList2Json(JSON_OBJECT, ["error", error]);
-            llMessageLinked(LINK_SET, 1, result, command_request_id);
+            respond(1, "", error);
             return;
         }
 
@@ -241,8 +254,7 @@ default
         integer available = (integer)llJsonGetValue(data, ["available"]);
         if(!available)
         {
-            string result = llList2Json(JSON_OBJECT, ["error", "Module not available in repository."]);
-            llMessageLinked(LINK_SET, 1, result, command_request_id);
+            respond(1, "", "Module not available in repository.");
             return;
         }
 
@@ -261,8 +273,7 @@ default
     {
         if(change & CHANGED_INVENTORY && installing_module != "")
         {
-            string result = handle_inventory_change();
-            llMessageLinked(LINK_SET, 1, result, command_request_id);
+            respond(1, handle_inventory_change(), "");
         }
     }
 }
