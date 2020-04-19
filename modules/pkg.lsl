@@ -11,7 +11,7 @@ arguments:
   remove MODULE         remove MODULE
   enable MODULE         enable MODULE
   disable MODULE        disable MODULE
-  list                  list installable modules
+  query                 query installable modules
   current               list currently installed modules
 
 optional arguments:
@@ -41,7 +41,7 @@ string pkg(list params)
 
     string cmd = llList2String(params, 0);
 
-    if(cmd == "list") return list_modules();
+    if(cmd == "query") return query_modules();
     else if(cmd == "current") return list_installed_modules();
 
     // Parse module param; check for errors and append '.lsl'
@@ -115,12 +115,12 @@ string disable_module(string module)
     return llList2Json(JSON_OBJECT, ["error", "Module '" + name + "' is already disabled."]);
 }
 
-string list_modules()
+string query_modules()
 {
-    /* Broadcast a message with a request to list available modules.
+    /* Broadcast a message with a query for available modules.
     */
     listen_handle = llListen(CHANNEL, "", "", "");
-    string data = llList2Json(JSON_OBJECT, ["command", "list"]);
+    string data = llList2Json(JSON_OBJECT, ["command", "query"]);
     llRegionSay(CHANNEL, data);
     return "AWAIT";
 }

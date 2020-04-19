@@ -34,6 +34,24 @@ integer module_is_available(string module)
     else return TRUE;
 }
 
+list get_modules()
+{
+    /* Return a list of available modules.
+    */
+    list modules;
+    integer count = llGetInventoryNumber(INVENTORY_SCRIPT);
+    while(count--)
+    {
+        string name = llGetInventoryName(INVENTORY_SCRIPT, count);
+        if(name != llGetScriptName())
+        {
+            string extension = llGetSubString(name, -4, -1);
+            if(extension == ".lsl") modules += [name];
+        }
+    }
+    return modules;
+}
+
 default
 {
     state_entry()
@@ -61,6 +79,13 @@ default
         else if(command == "send")
         {
             llRemoteLoadScriptPin(id, module, pin, TRUE, 0xDEADBEEF);
+            return;
+        }
+        else if(command == "query")
+        {
+            string modules = llList2Json(JSON_ARRAY, get_modules());
+            string response = llList2Json(JSON_OBJECT, ["modules", modules]);
+            llRegionSayTo(id, channel, response);
             return;
         }
 
