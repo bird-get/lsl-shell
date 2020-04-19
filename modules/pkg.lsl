@@ -65,7 +65,9 @@ string install_module(string module)
 
 string uninstall_module(string module)
 {
-    return "TODO";
+    llRemoveInventory(module);
+    string name = llGetSubString(module, 0, -5);
+    return "Module '" + name + "' uninstalled.";
 }
 
 string enable_module(string module)
