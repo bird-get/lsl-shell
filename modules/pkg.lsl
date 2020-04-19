@@ -179,32 +179,32 @@ string handle_inventory_change()
 {
     /* Examine the inventory change and return an appropriate response.
     */
-
+    string response;
+    string name = llGetSubString(installing_module, 0, -5);
     list new_modules = get_installed_modules();
     if(llGetListLength(new_modules) == llGetListLength(old_modules))
     {
-        string name = llGetSubString(installing_module, 0, -5);
-        installing_module = "";
-        return "Module '" + name + "' reinstalled.";
-    }
-
-    // Ensure the correct script was added
-    list diff = list_x_not_y(get_installed_modules(), old_modules);
-    if(llList2String(diff, 0) == installing_module)
-    {
-        // Clean up and return success response
-        llSetRemoteScriptAccessPin(0);
-        llListenRemove(listen_handle);
-        string name = llGetSubString(installing_module, 0, -5);
-        installing_module = "";
-        return "Module '" + name + "' installed.";
+        response = "Module '" + name + "' reinstalled.";
     }
     else
     {
-        string result = llList2Json(JSON_OBJECT, ["error", "Warning: Unexpected module '" + installing_module + "' was installed!"]);
-        installing_module = "";
-        return result;
+        // Ensure the correct script was added
+        list diff = list_x_not_y(get_installed_modules(), old_modules);
+        if(llList2String(diff, 0) == installing_module)
+        {
+            response = "Module '" + name + "' installed.";
+        }
+        else
+        {
+            response = llList2Json(JSON_OBJECT, ["error", "Warning: Unexpected module '" + installing_module + "' was installed!"]);
+        }
     }
+
+    llSetRemoteScriptAccessPin(0);
+    llListenRemove(listen_handle);
+    installing_module = "";
+
+    return response;
 }
 
 default
