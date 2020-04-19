@@ -210,12 +210,13 @@ default
 
     changed(integer change)
     {
-        if(change & CHANGED_INVENTORY)
+        if(change & CHANGED_INVENTORY && installing_module != "")
         {
             list new_modules = get_installed_modules();
             if(llGetListLength(new_modules) == llGetListLength(old_modules))
             {
                 llMessageLinked(LINK_SET, 1, "Module '" + installing_module + "' reinstalled.", command_request_id);
+                installing_module = "";
                 return;
             }
 
@@ -228,11 +229,13 @@ default
                 llListenRemove(listen_handle);
                 string name = llGetSubString(installing_module, 0, -5);
                 llMessageLinked(LINK_SET, 1, "Module '" + name + "' installed.", command_request_id);
+                installing_module = "";
             }
             else
             {
                 string result = llList2Json(JSON_OBJECT, ["error", "Warning: Unexpected module '" + installing_module + "' was installed!"]);
                 llMessageLinked(LINK_SET, 1, result, command_request_id);
+                installing_module = "";
             }
         }
     }
