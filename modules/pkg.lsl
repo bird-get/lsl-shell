@@ -29,30 +29,12 @@ string pkg(list params)
     string cmd = llList2String(params, 0);
     string module = llList2String(params, 1);
 
-    if(cmd == "install")
-    {
-        return install_module(module);
-    }
-    else if(cmd == "uninstall")
-    {
-        return uninstall_module(module);
-    }
-    else if(cmd == "enable")
-    {
-        return enable_module(module);
-    }
-    else if(cmd == "disable")
-    {
-        return disable_module(module);
-    }
-    else if(cmd == "list")
-    {
-        return list_modules();
-    }
-    else if(cmd == "current")
-    {
-        return list_installed_modules();
-    }
+    if(cmd == "install") return install_module(module);
+    else if(cmd == "uninstall") return uninstall_module(module);
+    else if(cmd == "enable") return enable_module(module);
+    else if(cmd == "disable") return disable_module(module);
+    else if(cmd == "list") return list_modules();
+    else if(cmd == "current") return list_installed_modules();
 
     return llList2Json(JSON_OBJECT, ["error", "Invalid command."]);
 }
