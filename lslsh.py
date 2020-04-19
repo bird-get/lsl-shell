@@ -61,6 +61,13 @@ class Shell(cmd.Cmd):
                     data[0][i] = f"\033[4m{Style.BRIGHT}{item}{Style.NORMAL}\033[0m"
 
                 return tabulate(data, headers="firstrow", tablefmt="plain")
+            elif isinstance(data, dict) and len(data.values()) == 1:
+                # Dict with one list; return a single column with header
+                header: str = next(iter(data.keys()))
+                values: list = next(iter(data.values()))
+                result = [f"\033[4m{Style.BRIGHT}{header}{Style.NORMAL}\033[0m"]
+                result.extend(values)
+                return "\n".join(result)
         except TypeError:
             pass
 
