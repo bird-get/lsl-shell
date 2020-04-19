@@ -26,30 +26,36 @@ string pkg(list params)
 {
     // Display help
     if(llListFindList(params, ["-h"]) != -1 ||
-        llListFindList(params, ["--help"]) != -1)
+        llListFindList(params, ["--help"]) != -1 ||
+        llGetListLength(params) == 0)
     {
         return USAGE;
     }
 
     string cmd = llList2String(params, 0);
-    string module = llList2String(params, 1);
 
-    if(cmd == "install") return install_module(module);
-    else if(cmd == "uninstall") return uninstall_module(module);
-    else if(cmd == "enable") return enable_module(module);
-    else if(cmd == "disable") return disable_module(module);
-    else if(cmd == "list") return list_modules();
+    if(cmd == "list") return list_modules();
     else if(cmd == "current") return list_installed_modules();
 
-    if(llGetListLength(params) == 0)
-        return llList2Json(JSON_OBJECT, ["error", "Missing command."]);
+    string module = llList2String(params, 1);
+    if(module == "") return llList2Json(JSON_OBJECT, ["error", "Missing argument."]);
+    if(llGetSubString(module, -4, -1) != ".lsl") module = module + ".lsl";
+
+    if(cmd == "install") return install_module(module);
+
+    // Return error if module does not exist
+    integer exists = llListFindList(get_installed_modules(), [module]);
+    if(exists == -1) return llList2Json(JSON_OBJECT, ["error", "Module is not installed."]);
+
+    if(cmd == "uninstall") return uninstall_module(module);
+    else if(cmd == "enable") return enable_module(module);
+    else if(cmd == "disable") return disable_module(module);
 
     return llList2Json(JSON_OBJECT, ["error", "Invalid command."]);
 }
 
 string install_module(string module)
 {
-    // TODO Sanitize module name
     installing_module = module;
     string data = llList2Json(JSON_OBJECT, ["command", "request", "module", module]);
     listen_handle = llListen(CHANNEL, "", "", "");
@@ -64,17 +70,7 @@ string uninstall_module(string module)
 
 string enable_module(string module)
 {
-    string name = module;
-
-    if(module == "") return llList2Json(JSON_OBJECT, ["error", "Missing argument."]);
-
-    // Append extension if it's missing
-    if(llGetSubString(module, -4, -1) != ".lsl") module = module + ".lsl";
-    else name = llGetSubString(module, 0, -5);
-
-    // Return error if module does not exist
-    integer exists = llListFindList(get_installed_modules(), [module]);
-    if(exists == -1) return llList2Json(JSON_OBJECT, ["error", "Module is not installed."]);
+    string name = llGetSubString(module, 0, -5);
 
     if(llGetScriptState(module) == FALSE)
     {
@@ -87,18 +83,7 @@ string enable_module(string module)
 
 string disable_module(string module)
 {
-    // TODO Refactor; lots of code duplication
-    string name = module;
-
-    if(module == "") return llList2Json(JSON_OBJECT, ["error", "Missing argument."]);
-
-    // Append extension if it's missing
-    if(llGetSubString(module, -4, -1) != ".lsl") module = module + ".lsl";
-    else name = llGetSubString(module, 0, -5);
-
-    // Return error if module does not exist
-    integer exists = llListFindList(get_installed_modules(), [module]);
-    if(exists == -1) return llList2Json(JSON_OBJECT, ["error", "Module is not installed."]);
+    string name = llGetSubString(module, 0, -5);
 
     if(llGetScriptState(module) == TRUE)
     {
