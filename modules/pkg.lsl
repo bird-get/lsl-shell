@@ -1,3 +1,4 @@
+integer CHANNEL = -54321;
 string ENDPOINT_SCRIPT_NAME = "endpoint.lsl";
 string COMMAND = "pkg";
 string USAGE = \
@@ -16,6 +17,10 @@ arguments:
 optional arguments:
   -h, --help    show help and exit
 ";
+
+integer listen_handle;
+string installing_module;
+key command_request_id;
 
 string pkg(list params)
 {
@@ -41,7 +46,12 @@ string pkg(list params)
 
 string install_module(string module)
 {
-    return "TODO";
+    // TODO Sanitize module name
+    installing_module = module;
+    string data = llList2Json(JSON_OBJECT, ["command", "request", "module", module]);
+    listen_handle = llListen(CHANNEL, "", "", "");
+    llRegionSay(CHANNEL, data);
+    return "AWAIT";
 }
 
 string uninstall_module(string module)
@@ -152,8 +162,52 @@ default
         }
         else if(param0 == COMMAND)
         {
+            command_request_id = id;
             string result = pkg(llDeleteSubList(params, 0, 0));
-            llMessageLinked(LINK_SET, 1, result, id);
+            if(result != "AWAIT") llMessageLinked(LINK_SET, 1, result, id);
+        }
+    }
+
+    listen(integer channel, string name, key id, string data)
+    {
+        llOwnerSay(data);
+        llOwnerSay(installing_module);
+        // TODO Validate response data
+
+        integer available = (integer)llJsonGetValue(data, ["available"]);
+
+        if(!available)
+        {
+            string result = llList2Json(JSON_OBJECT, ["error", "Module not available in repository."]);
+            llMessageLinked(LINK_SET, 1, result, command_request_id);
+            return;
+        }
+
+        integer pin = (integer)llJsonGetValue(data, ["pin"]);
+
+        llSetRemoteScriptAccessPin(pin);
+
+        string response = llList2Json(JSON_OBJECT, ["command", "send",
+                                                    "module", installing_module]);
+        llRegionSayTo(id, channel, response);
+    }
+
+    changed(integer change)
+    {
+        if(change & CHANGED_INVENTORY)
+        {
+            // TODO cleanup; disable script pin, remove listen, etc.
+            // TODO Validate if correct script was added
+            integer script_added = TRUE;
+            if(script_added)
+            {
+                llMessageLinked(LINK_SET, 1, "Module '" + installing_module + "' installed.", command_request_id);
+            }
+            else
+            {
+                // TODO Return message with removed module
+                llMessageLinked(LINK_SET, 1, "TODO", command_request_id);
+            }
         }
     }
 }
