@@ -8,7 +8,7 @@ Manage modules. Installing modules requires a nearby repository.
 
 arguments:
   install MODULE        install MODULE from nearby repository
-  uninstall MODULE      uninstall MODULE
+  remove MODULE         remove MODULE
   enable MODULE         enable MODULE
   disable MODULE        disable MODULE
   list                  list installable modules
@@ -55,7 +55,7 @@ string pkg(list params)
     integer exists = llListFindList(get_installed_modules(), [module]);
     if(exists == -1) return llList2Json(JSON_OBJECT, ["error", "Module is not installed."]);
 
-    if(cmd == "uninstall") return uninstall_module(module);
+    if(cmd == "remove") return remove_module(module);
     else if(cmd == "enable") return enable_module(module);
     else if(cmd == "disable") return disable_module(module);
 
@@ -76,13 +76,13 @@ string install_module(string module)
     return "AWAIT";
 }
 
-string uninstall_module(string module)
+string remove_module(string module)
 {
     /* Remove the given module from our inventory.
     */
     llRemoveInventory(module);
     string name = llGetSubString(module, 0, -5);
-    return "Module '" + name + "' uninstalled.";
+    return "Module '" + name + "' removed.";
 }
 
 string enable_module(string module)
