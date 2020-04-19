@@ -21,6 +21,7 @@ optional arguments:
 integer listen_handle;
 string installing_module;
 key command_request_id;
+list old_modules;
 
 string pkg(list params)
 {
@@ -57,6 +58,7 @@ string pkg(list params)
 string install_module(string module)
 {
     installing_module = module;
+    old_modules = get_installed_modules();
     string data = llList2Json(JSON_OBJECT, ["command", "request", "module", module]);
     listen_handle = llListen(CHANNEL, "", "", "");
     llRegionSay(CHANNEL, data);
@@ -139,6 +141,21 @@ list get_installed_modules()
     return modules;
 }
 
+list list_x_not_y(list lx, list ly)
+{
+    // Source: http://wiki.secondlife.com/wiki/ListXnotY
+    list lz;
+    integer i = llGetListLength(lx);
+    while(i--)
+    {
+	    if(!~llListFindList(ly,llList2List(lx,i,i)))
+        {
+            lz += llList2List(lx,i,i);
+        }
+    }
+    return lz;
+}
+
 default
 {
     link_message(integer sender, integer num, string msg, key id)
@@ -195,18 +212,27 @@ default
     {
         if(change & CHANGED_INVENTORY)
         {
-            // TODO cleanup; disable script pin, remove listen, etc.
-            // TODO Validate if correct script was added
-            integer script_added = TRUE;
-            if(script_added)
+            list new_modules = get_installed_modules();
+            if(llGetListLength(new_modules) == llGetListLength(old_modules))
             {
+                llMessageLinked(LINK_SET, 1, "Module '" + installing_module + "' reinstalled.", command_request_id);
+                return;
+            }
+
+            // Ensure the correct script was added
+            list diff = list_x_not_y(get_installed_modules(), old_modules);
+            if(llList2String(diff, 0) == installing_module)
+            {
+                // Clean up and return success response
+                llSetRemoteScriptAccessPin(0);
+                llListenRemove(listen_handle);
                 string name = llGetSubString(installing_module, 0, -5);
                 llMessageLinked(LINK_SET, 1, "Module '" + name + "' installed.", command_request_id);
             }
             else
             {
-                // TODO Return message with removed module
-                llMessageLinked(LINK_SET, 1, "TODO", command_request_id);
+                string result = llList2Json(JSON_OBJECT, ["error", "Warning: Unexpected module '" + installing_module + "' was installed!"]);
+                llMessageLinked(LINK_SET, 1, result, command_request_id);
             }
         }
     }
