@@ -191,7 +191,8 @@ default
             integer script_added = TRUE;
             if(script_added)
             {
-                llMessageLinked(LINK_SET, 1, "Module '" + installing_module + "' installed.", command_request_id);
+                string name = llGetSubString(installing_module, 0, -5);
+                llMessageLinked(LINK_SET, 1, "Module '" + name + "' installed.", command_request_id);
             }
             else
             {
