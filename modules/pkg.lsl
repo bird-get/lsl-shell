@@ -232,7 +232,6 @@ default
         string error = llJsonGetValue(data, ["error"]);
         if(error != JSON_INVALID)
         {
-            llOwnerSay(error);
             string result = llList2Json(JSON_OBJECT, ["error", error]);
             llMessageLinked(LINK_SET, 1, result, command_request_id);
             return;
