@@ -41,6 +41,9 @@ string pkg(list params)
     else if(cmd == "list") return list_modules();
     else if(cmd == "current") return list_installed_modules();
 
+    if(llGetListLength(params) == 0)
+        return llList2Json(JSON_OBJECT, ["error", "Missing command."]);
+
     return llList2Json(JSON_OBJECT, ["error", "Invalid command."]);
 }
 
