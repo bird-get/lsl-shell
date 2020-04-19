@@ -56,10 +56,15 @@ default
                 response = llList2Json(JSON_OBJECT, ["available", TRUE, "pin", pin]);
             }
             llRegionSayTo(id, channel, response);
+            return;
         }
         else if(command == "send")
         {
             llRemoteLoadScriptPin(id, module, pin, TRUE, 0xDEADBEEF);
+            return;
         }
+
+        string response = llList2Json(JSON_OBJECT, ["error", "Invalid command."]);
+        llRegionSayTo(id, channel, response);
     }
 }
