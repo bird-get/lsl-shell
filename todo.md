@@ -5,6 +5,7 @@
 - [ ] Add non-interactive mode to allow use in other scripts
 - [ ] Add verbose mode to see all communication
 - [ ] Add command to refresh command list of endpoint
+- [ ] Add versioning to modules
 - [ ] Formalize link message responses
     - [ ] Use bash-like exit codes (0, 1, 2, 127, etc.) as response
     - [ ] Formalize returned JSON
