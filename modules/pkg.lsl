@@ -4,10 +4,10 @@ string COMMAND = "pkg";
 string USAGE = \
 "usage: pkg [-h] command [args...]
  
-Install or uninstall modules from a nearby repository.
+Manage modules. Installing modules requires a nearby repository.
 
 arguments:
-  install MODULE        install MODULE
+  install MODULE        install MODULE from nearby repository
   uninstall MODULE      uninstall MODULE
   enable MODULE         enable MODULE
   disable MODULE        disable MODULE
