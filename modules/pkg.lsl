@@ -12,7 +12,7 @@ arguments:
   enable MODULE         enable MODULE
   disable MODULE        disable MODULE
   query                 query installable modules
-  current               list currently installed modules
+  list                  list currently installed modules
 
 optional arguments:
   -h, --help    show help and exit
@@ -42,7 +42,7 @@ string pkg(list params)
     string cmd = llList2String(params, 0);
 
     if(cmd == "query") return query_modules();
-    else if(cmd == "current") return list_installed_modules();
+    else if(cmd == "list") return list_installed_modules();
 
     // Parse module param; check for errors and append '.lsl'
     string module = llList2String(params, 1);
