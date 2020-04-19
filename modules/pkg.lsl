@@ -117,7 +117,12 @@ string disable_module(string module)
 
 string list_modules()
 {
-    return llList2Json(JSON_ARRAY, ["TODO 1", "TODO 2"]);
+    /* Broadcast a message with a request to list available modules.
+    */
+    listen_handle = llListen(CHANNEL, "", "", "");
+    string data = llList2Json(JSON_OBJECT, ["command", "list"]);
+    llRegionSay(CHANNEL, data);
+    return "AWAIT";
 }
 
 string list_installed_modules()
@@ -247,6 +252,15 @@ default
         if(error != JSON_INVALID)
         {
             respond(1, "", error);
+            return;
+        }
+
+        // Return the module listing if the repository returned it
+        string modules = llJsonGetValue(data, ["modules"]);
+        if(modules != JSON_INVALID)
+        {
+            string response = llList2Json(JSON_OBJECT, ["Modules"] + (list)modules);
+            respond(1, response, "");
             return;
         }
 
