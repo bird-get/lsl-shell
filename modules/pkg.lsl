@@ -25,6 +25,12 @@ list old_modules;
 
 string pkg(list params)
 {
+    /* Parse the param list to call sub-commands depending on user input.
+
+       Return the output of the sub-command.
+       On error or invalid input, return a JSON object with a short descriptive message.
+    */
+
     // Display help
     if(llListFindList(params, ["-h"]) != -1 ||
         llListFindList(params, ["--help"]) != -1 ||
@@ -38,6 +44,7 @@ string pkg(list params)
     if(cmd == "list") return list_modules();
     else if(cmd == "current") return list_installed_modules();
 
+    // Parse module param; check for errors and append '.lsl'
     string module = llList2String(params, 1);
     if(module == "") return llList2Json(JSON_OBJECT, ["error", "Missing argument."]);
     if(llGetSubString(module, -4, -1) != ".lsl") module = module + ".lsl";
@@ -57,16 +64,22 @@ string pkg(list params)
 
 string install_module(string module)
 {
+    /* Start the install process for the given module.
+
+       Send a request to a repository in the sim and wait for a response.
+    */
     installing_module = module;
     old_modules = get_installed_modules();
-    string data = llList2Json(JSON_OBJECT, ["command", "request", "module", module]);
     listen_handle = llListen(CHANNEL, "", "", "");
+    string data = llList2Json(JSON_OBJECT, ["command", "request", "module", module]);
     llRegionSay(CHANNEL, data);
     return "AWAIT";
 }
 
 string uninstall_module(string module)
 {
+    /* Remove the given module from our inventory.
+    */
     llRemoveInventory(module);
     string name = llGetSubString(module, 0, -5);
     return "Module '" + name + "' uninstalled.";
@@ -74,6 +87,8 @@ string uninstall_module(string module)
 
 string enable_module(string module)
 {
+    /* Set the script state of the module to TRUE if not already enabled.
+    */
     string name = llGetSubString(module, 0, -5);
 
     if(llGetScriptState(module) == FALSE)
@@ -87,6 +102,8 @@ string enable_module(string module)
 
 string disable_module(string module)
 {
+    /* Set the script state of the module to FALSE if not already disabled.
+    */
     string name = llGetSubString(module, 0, -5);
 
     if(llGetScriptState(module) == TRUE)
@@ -105,6 +122,8 @@ string list_modules()
 
 string list_installed_modules()
 {
+    /* Return a JSON array with installed modules.
+    */
     list rows = [llList2Json(JSON_ARRAY, ["Name", "Version", "Enabled"])];
     list modules = get_installed_modules();
     integer count = llGetListLength(modules);
@@ -122,8 +141,8 @@ string list_installed_modules()
 
 list get_installed_modules()
 {
-    /* Return a list of installed modules. */
-
+    /* Return a list of installed modules.
+    */
     list modules;
     integer count = llGetInventoryNumber(INVENTORY_SCRIPT);
     while(count--)
@@ -132,10 +151,7 @@ list get_installed_modules()
         if(name != llGetScriptName() && name != ENDPOINT_SCRIPT_NAME)
         {
             string extension = llGetSubString(name, -4, -1);
-            if(extension == ".lsl")
-            {
-                modules += [name];
-            }
+            if(extension == ".lsl") modules += [name];
         }
     }
     return modules;
@@ -143,7 +159,10 @@ list get_installed_modules()
 
 list list_x_not_y(list lx, list ly)
 {
-    // Source: http://wiki.secondlife.com/wiki/ListXnotY
+    /* Return a list of items that are in list X, but not in list Y.
+
+       Source: http://wiki.secondlife.com/wiki/ListXnotY
+    */
     list lz;
     integer i = llGetListLength(lx);
     while(i--)
@@ -154,6 +173,38 @@ list list_x_not_y(list lx, list ly)
         }
     }
     return lz;
+}
+
+string handle_inventory_change()
+{
+    /* Examine the inventory change and return an appropriate response.
+    */
+
+    list new_modules = get_installed_modules();
+    if(llGetListLength(new_modules) == llGetListLength(old_modules))
+    {
+        string name = llGetSubString(installing_module, 0, -5);
+        installing_module = "";
+        return "Module '" + name + "' reinstalled.";
+    }
+
+    // Ensure the correct script was added
+    list diff = list_x_not_y(get_installed_modules(), old_modules);
+    if(llList2String(diff, 0) == installing_module)
+    {
+        // Clean up and return success response
+        llSetRemoteScriptAccessPin(0);
+        llListenRemove(listen_handle);
+        string name = llGetSubString(installing_module, 0, -5);
+        installing_module = "";
+        return "Module '" + name + "' installed.";
+    }
+    else
+    {
+        string result = llList2Json(JSON_OBJECT, ["error", "Warning: Unexpected module '" + installing_module + "' was installed!"]);
+        installing_module = "";
+        return result;
+    }
 }
 
 default
@@ -177,10 +228,7 @@ default
 
     listen(integer channel, string name, key id, string data)
     {
-        llOwnerSay(data);
-        llOwnerSay(installing_module);
-        // TODO Validate response data
-
+        // Return the error message if the repository raised one
         string error = llJsonGetValue(data, ["error"]);
         if(error != JSON_INVALID)
         {
@@ -190,8 +238,8 @@ default
             return;
         }
 
+        // Return an error message if the module is not available in the repository
         integer available = (integer)llJsonGetValue(data, ["available"]);
-
         if(!available)
         {
             string result = llList2Json(JSON_OBJECT, ["error", "Module not available in repository."]);
@@ -199,10 +247,12 @@ default
             return;
         }
 
+        // Set the script access PIN that was returned by the repository
+        // in order to accept the new module
         integer pin = (integer)llJsonGetValue(data, ["pin"]);
-
         llSetRemoteScriptAccessPin(pin);
 
+        // Ask the repository to send the new module
         string response = llList2Json(JSON_OBJECT, ["command", "send",
                                                     "module", installing_module]);
         llRegionSayTo(id, channel, response);
@@ -212,31 +262,8 @@ default
     {
         if(change & CHANGED_INVENTORY && installing_module != "")
         {
-            list new_modules = get_installed_modules();
-            if(llGetListLength(new_modules) == llGetListLength(old_modules))
-            {
-                llMessageLinked(LINK_SET, 1, "Module '" + installing_module + "' reinstalled.", command_request_id);
-                installing_module = "";
-                return;
-            }
-
-            // Ensure the correct script was added
-            list diff = list_x_not_y(get_installed_modules(), old_modules);
-            if(llList2String(diff, 0) == installing_module)
-            {
-                // Clean up and return success response
-                llSetRemoteScriptAccessPin(0);
-                llListenRemove(listen_handle);
-                string name = llGetSubString(installing_module, 0, -5);
-                llMessageLinked(LINK_SET, 1, "Module '" + name + "' installed.", command_request_id);
-                installing_module = "";
-            }
-            else
-            {
-                string result = llList2Json(JSON_OBJECT, ["error", "Warning: Unexpected module '" + installing_module + "' was installed!"]);
-                llMessageLinked(LINK_SET, 1, result, command_request_id);
-                installing_module = "";
-            }
+            string result = handle_inventory_change();
+            llMessageLinked(LINK_SET, 1, result, command_request_id);
         }
     }
 }
