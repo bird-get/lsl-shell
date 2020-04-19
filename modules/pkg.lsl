@@ -103,15 +103,17 @@ string list_modules()
 
 string list_installed_modules()
 {
-    list rows = [llList2Json(JSON_ARRAY, ["Name", "Version"])];
+    list rows = [llList2Json(JSON_ARRAY, ["Name", "Version", "Enabled"])];
     list modules = get_installed_modules();
     integer count = llGetListLength(modules);
     while(count--)
     {
         // TODO Get version number
         string name = llList2String(modules, count);
+        string enabled = "Yes";
+        if(llGetScriptState(name) == FALSE) enabled = "No";
         name = llGetSubString(name, 0, -5);
-        rows += [llList2Json(JSON_ARRAY, [name, "unknown"])];
+        rows += [llList2Json(JSON_ARRAY, [name, "unknown", enabled])];
     }
     return llList2Json(JSON_ARRAY, rows);
 }
