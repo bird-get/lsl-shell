@@ -223,7 +223,7 @@ respond(integer code, string data, string error_msg)
     if(code == -1) id = "command_info";
     else if(error_msg != "") data = llList2Json(JSON_OBJECT, ["error", error_msg]);
 
-    llMessageLinked(LINK_SET, code, data, command_request_id);
+    llMessageLinked(LINK_SET, code, data, id);
 }
 
 default
