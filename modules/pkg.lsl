@@ -122,6 +122,7 @@ string query_modules()
     listen_handle = llListen(CHANNEL, "", "", "");
     string data = llList2Json(JSON_OBJECT, ["command", "query"]);
     llRegionSay(CHANNEL, data);
+    llSetTimerEvent(3);
     return "AWAIT";
 }
 
@@ -289,5 +290,11 @@ default
         {
             respond(1, handle_inventory_change(), "");
         }
+    }
+
+    timer()
+    {
+        respond(1, "", "No repository nearby.");
+        llSetTimerEvent(0);
     }
 }
