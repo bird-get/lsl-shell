@@ -17,7 +17,8 @@ string avinfo(list params)
 {
     // Display help
     if(llListFindList(params, ["-h"]) != -1 ||
-        llListFindList(params, ["--help"]) != -1)
+        llListFindList(params, ["--help"]) != -1 ||
+        llGetListLength(params) == 0)
     {
         return USAGE;
     }
