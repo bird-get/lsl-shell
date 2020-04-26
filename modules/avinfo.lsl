@@ -1,16 +1,16 @@
 string COMMAND = "avinfo";
 string USAGE = \
-"usage: avinfo [name] [-h]
+"usage: avinfo [uuid] [-h]
  
-Request info about avatar NAME.
+Request info about avatar with the given UUID.
 
 positional arguments:
-  name          name of avatar
+  uuid          uuid of avatar
 
 optional arguments:
   -h, --help    show help and exit
 
-ex: avinfo john.doe
+ex: avinfo c53bf932-81ea-4a9f-b464-c4b545f93db1
 ";
 
 string avinfo(list params)
