@@ -240,7 +240,16 @@ default
         {
             command_request_id = id;
             string result = pkg(llDeleteSubList(params, 0, 0));
-            if(result != "AWAIT") respond(0, result);
+            if(result != "AWAIT")
+            {
+                string error = llJsonGetValue(result, ["error"]);
+                if(error != JSON_INVALID)
+                {
+                    respond(1, error);
+                    return;
+                }
+                respond(0, result);
+            }
         }
     }
 
