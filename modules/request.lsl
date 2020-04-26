@@ -85,7 +85,7 @@ default
 
         if(id == "get_commands")
         {
-            llMessageLinked(LINK_SET, 0, COMMAND + "|" + USAGE, "command_info");
+            llMessageLinked(LINK_SET, -1, COMMAND + "|" + USAGE, "command_info");
         }
         else if(param0 == COMMAND)
         {
@@ -102,6 +102,6 @@ default
     {
         if(id != http_request_id) return;
 
-        llMessageLinked(LINK_SET, 1, body, command_request_id);
+        llMessageLinked(LINK_SET, 0, body, command_request_id);
     }
 }

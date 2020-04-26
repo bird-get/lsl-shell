@@ -213,16 +213,14 @@ string handle_inventory_change()
     return response;
 }
 
-respond(integer code, string data, string error_msg)
+respond(integer code, string data)
 {
     /* Send a response to the endpoint.
 
        If error_msg is not empty, it will be sent instead of data.
     */
-    // TODO Determine response type based on code instead of error_msg
     key id = command_request_id;
     if(code == -1) id = "command_info";
-    else if(error_msg != "") data = llList2Json(JSON_OBJECT, ["error", error_msg]);
 
     llMessageLinked(LINK_SET, code, data, id);
 }
@@ -236,13 +234,13 @@ default
 
         if(id == "get_commands")
         {
-            respond(-1, COMMAND + "|" + USAGE, "");
+            respond(-1, COMMAND + "|" + USAGE);
         }
         else if(param0 == COMMAND)
         {
             command_request_id = id;
             string result = pkg(llDeleteSubList(params, 0, 0));
-            if(result != "AWAIT") respond(1, result, "");
+            if(result != "AWAIT") respond(0, result);
         }
     }
 
@@ -252,7 +250,7 @@ default
         string error = llJsonGetValue(data, ["error"]);
         if(error != JSON_INVALID)
         {
-            respond(1, "", error);
+            respond(1, error);
             return;
         }
 
@@ -261,7 +259,7 @@ default
         if(modules != JSON_INVALID)
         {
             string response = llList2Json(JSON_OBJECT, ["Modules"] + (list)modules);
-            respond(1, response, "");
+            respond(0, response);
             return;
         }
 
@@ -269,7 +267,7 @@ default
         integer available = (integer)llJsonGetValue(data, ["available"]);
         if(!available)
         {
-            respond(1, "", "Module not available in repository.");
+            respond(1, "Module not available in repository.");
             return;
         }
 
@@ -288,13 +286,13 @@ default
     {
         if(change & CHANGED_INVENTORY && installing_module != "")
         {
-            respond(1, handle_inventory_change(), "");
+            respond(0, handle_inventory_change());
         }
     }
 
     timer()
     {
-        respond(1, "", "No repository nearby.");
+        respond(1, "No repository nearby.");
         llSetTimerEvent(0);
     }
 }

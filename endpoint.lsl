@@ -12,7 +12,7 @@ broadcast_command(key request_id, string command)
     // Broadcast the message to other scripts. We expect one script to return
     // a link_message in response. We pass the request_id to be able
     // to identify the response.
-    llMessageLinked(LINK_SET, 0, command, request_id);
+    llMessageLinked(LINK_SET, -1, command, request_id);
 }
 
 default
@@ -20,23 +20,22 @@ default
     state_entry()
     {
         llRequestSecureURL();
-        llMessageLinked(LINK_SET, 0, "", "get_commands");
+        llMessageLinked(LINK_SET, -1, "", "get_commands");
     }
 
     link_message(integer link, integer num, string msg, key id)
     {
-        if(id == "command_info")
+        if(num == -1 && id == "command_info")
         {
             commands += llParseString2List(msg, ["|"], []);
         }
+        else if(num == 0)
+        {
+            respond(id, 200, "result", msg);
+        }
         else if(num == 1)
         {
-            string error = llJsonGetValue(msg, ["error"]);
-            if(error == JSON_NULL || error == JSON_INVALID)
-            {
-                respond(id, 200, "result", msg);
-            }
-            else respond(id, 200, "error", error);
+            respond(id, 200, "error", msg);
         }
     }
 

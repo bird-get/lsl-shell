@@ -14,7 +14,7 @@ default
 
         if(id == "get_commands")
         {
-            llMessageLinked(LINK_SET, 0, COMMAND + "|" + USAGE, "command_info");
+            llMessageLinked(LINK_SET, -1, COMMAND + "|" + USAGE, "command_info");
         }
         else if(param0 == COMMAND)
         {
@@ -38,7 +38,7 @@ default
 
             string response = llList2Json(JSON_ARRAY, rows);
 
-            llMessageLinked(LINK_SET, 1, response, id);
+            llMessageLinked(LINK_SET, 0, response, id);
         }
     }
 }

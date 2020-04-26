@@ -90,12 +90,12 @@ default
 
         if(id == "get_commands")
         {
-            llMessageLinked(LINK_SET, 0, COMMAND + "|" + USAGE, "command_info");
+            llMessageLinked(LINK_SET, -1, COMMAND + "|" + USAGE, "command_info");
         }
         else if(param0 == COMMAND)
         {
             string response = avlist(llDeleteSubList(params, 0, 0));
-            llMessageLinked(LINK_SET, 1, response, id);
+            llMessageLinked(LINK_SET, 0, response, id);
         }
     }
 }
