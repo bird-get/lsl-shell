@@ -79,6 +79,13 @@ class Shell(cmd.Cmd):
 
         try:
             result = send_cmd(self.url, SECRET_KEY, command).get("result")
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                print(f"{Fore.RED}Error{Fore.RESET}: Endpoint no longer available.")
+                self.do_disconnect(None)
+                return ""
+            else:
+                return f"{Fore.RED}Error{Fore.RESET}: {e}"
         except Exception as e:
             return f"{Fore.RED}Error{Fore.RESET}: {e}"
 
@@ -121,9 +128,14 @@ class Shell(cmd.Cmd):
 
         Disconnect from the endpoint."""
         if self.url:
-            if disconnect(self.url, SECRET_KEY):
+            success = False
+            try:
+                success = disconnect(self.url, SECRET_KEY)
                 print("Disconnected from endpoint.")
-            else:
+            except Exception:
+                pass
+
+            if not success:
                 print("Disconnected from endpoint (without acknowledgement).")
 
             self.url = None
